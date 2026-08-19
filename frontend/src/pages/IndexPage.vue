@@ -295,11 +295,18 @@ onMounted(async () => {
 
 .hero-button-surprise {
   color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 0 20px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .hero-button-surprise:hover {
   color: var(--kantun-zlatna-svijetlo);
+  border-color: var(--kantun-zlatna-svijetlo);
+  background: rgba(251, 191, 36, 0.1);
 }
 
 .section {

@@ -567,6 +567,15 @@ h1 {
 
 .share-button {
   color: var(--kantun-tekst-suptilan);
+  border: 1px solid var(--kantun-granica);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.share-button:hover {
+  color: var(--kantun-zlatna-svijetlo);
+  border-color: var(--kantun-zlatna);
 }
 
 @media (max-width: 600px) {
