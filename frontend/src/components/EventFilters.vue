@@ -65,6 +65,8 @@ const gradoviOpcije = computed(() =>
   eventStore.gradovi.map(g => ({ label: g, value: g }))
 )
 
+// čeka 300ms nakon zadnje promjene prije nego pošalje filtere roditelju,
+// da ne šaljemo API poziv na svaki utipkani znak dok korisnik piše u polje
 let debounceTimer = null
 watch(
   filteri,

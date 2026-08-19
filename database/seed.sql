@@ -1,23 +1,17 @@
--- ============================================================
 -- Kantun - početni podaci
 -- Pokreni NAKON schema.sql (isti postupak: File -> Load SQL file -> F9)
--- ============================================================
 
 SET NAMES utf8mb4;
 
--- ------------------------------------------------------------
 -- Korisnici
 -- Lozinke su spremljene kao bcrypt hash (nikad plain-text!).
 --   Admin:    admin@kantun.hr    / Kantun2026!
 --   Korisnik: iva.horvat@example.com / Korisnik123
--- ------------------------------------------------------------
 INSERT INTO korisnici (ime, prezime, email, lozinka_hash, uloga) VALUES
 ('Admin', 'Kantun', 'admin@kantun.hr', '$2a$10$amLAKTGER.DnSmgpnPw5w.nQ1DV4HTuYISiCq50EvXQigxWouTaFG', 'admin'),
 ('Iva', 'Horvat', 'iva.horvat@example.com', '$2a$10$zH5ZJhOWYaUqcQGiYegtKus8ge5kKwUcvJ1T.grRmt7NJLU9Z2RQO', 'korisnik');
 
--- ------------------------------------------------------------
 -- Kategorije
--- ------------------------------------------------------------
 INSERT INTO kategorije (naziv, boja, ikona) VALUES
 ('Glazba', '#2dd4bf', 'music_note'),
 ('Kazalište', '#a78bfa', 'theater_comedy'),
@@ -26,17 +20,9 @@ INSERT INTO kategorije (naziv, boja, ikona) VALUES
 ('Sport', '#60a5fa', 'sports_soccer'),
 ('Festivali', '#34d399', 'celebration');
 
--- ------------------------------------------------------------
--- Događanja
--- Ovo su STVARNI, trenutno najavljeni događaji u Rijeci, Opatiji i na
--- Krku (provjereno preko Entrio.hr, kolovoz 2026.) - ne izmišljeni demo
--- podaci. Cijena je kod većine postavljena na NULL ("nepoznato / provjeri
--- na poveznici") jer listing stranice ne prikazuju cijenu izravno - vidi
--- napomenu o koloni "cijena" u schema.sql. Ako s vremenom neki od ovih
--- događaja prođe ili se otkaže, jednostavno ga obriši/uredi kroz admin
--- panel, ili pokreni automatski uvoz (Admin -> Pregled -> "Uvezi evente")
--- da se popis osvježi stvarnim, trenutno aktualnim događanjima.
--- ------------------------------------------------------------
+-- Događanja - stvarni, trenutno najavljeni eventi u Rijeci, Opatiji i na
+-- Krku, ne izmišljeni demo podaci. Cijena je kod većine NULL (nepoznato)
+-- jer listing na izvornim stranicama ne prikazuje cijenu izravno.
 INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum_pocetka, datum_zavrsetka, cijena, slika_url, web_link) VALUES
 ('Vesna Pisarović - koncert', 'Vesna Pisarović, jedna od najprepoznatljivijih hrvatskih pjevačica, nastupa na otvorenom u Nugentovom parku Trsatskog kaštela. Očekuje se večer punog glasa i publike koja pjeva svaki stih zajedno s njom.', 1, 'Trsatski kaštel - Nugentov park', 'Rijeka', NULL, '2026-08-28 21:45:00', NULL, NULL, 'https://images.unsplash.com/photo-1603190287605-e6ade32fa852?w=800', 'https://www.entrio.hr/en/events/rijeka'),
 ('Stand-up: Nezgodna Situacija', 'Opuštena stand-up večer u Bačva Pubu donosi komičare koji se hvataju u koštac sa svakodnevnim "nezgodnim situacijama" iz života. Idealno za druženje uz smijeh i piće nakon radnog tjedna.', 2, 'Bačva Pub', 'Rijeka', NULL, '2026-08-29 20:30:00', NULL, NULL, 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=800', 'https://www.entrio.hr/en/events/rijeka'),
@@ -54,12 +40,7 @@ INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum
 ('Orašar - baletni spektakl', 'Baletni spektakl "Orašar" stiže u opatijski Centar Gervais s klasičnom božićnom pričom u plesnoj izvedbi. Prigodan je izbor za obiteljski izlazak krajem godine.', 2, 'Centar Gervais', 'Opatija', NULL, '2026-12-08 20:00:00', NULL, NULL, 'https://images.unsplash.com/photo-1609039504401-47ac3940f378?w=800', 'https://www.entrio.hr/en/events/opatija'),
 ('Vau Vau Zvijezda 3: Bitka bendova', 'Vau Vau Zvijezda 3: Bitka bendova je natjecateljski glazbeni show u kinu Krk gdje se mladi bendovi bore za pobjedu pred publikom i žirijem. Odlična je prilika za otkrivanje nove glazbene scene otoka.', 6, 'Kino Krk', 'Krk', NULL, '2026-08-29 10:00:00', NULL, NULL, 'https://images.unsplash.com/photo-1698180918987-30bd75410473?w=800', 'https://www.entrio.hr/en/events/krk');
 
--- ------------------------------------------------------------
--- Događanja - rujan 2026 (dodatna događanja da kalendar bude
--- popunjen za cijeli mjesec; datumi/lokacije prikupljeni iz javno
--- najavljenog programa kazališta/koncertnih dvorana u Rijeci i
--- Opatiji, opisi su samostalno napisani)
--- ------------------------------------------------------------
+-- Događanja - rujan 2026, da kalendar bude popunjen za cijeli mjesec
 INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum_pocetka, datum_zavrsetka, cijena, slika_url, web_link) VALUES
 ('Otvorenje jesenske koncertne sezone u Klubu Palach', 'Nova koncertna sezona u Klubu Palach kreće energično uz punk nastupe grupa Motus Vita Est, Tahijevi Kmetovi, Insomnia i Mitraljez. Dvije generacije riječke punk scene dijele istu pozornicu jedne večeri.', 1, 'Klub Palach', 'Rijeka', NULL, '2026-09-04 20:00:00', NULL, 8, 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800', NULL),
 ('Kathy Kelly & Band', 'Kathy Kelly, poznata po glazbenoj obitelji The Kelly Family, dolazi u Opatiju s koncertnim programom koji spaja stare hitove i pjesme sa svoje solo karijere. Večer intimnog i zrelog glazbenog izričaja na Ljetnoj pozornici.', 1, 'Ljetna pozornica u Opatiji', 'Opatija', NULL, '2026-09-04 20:00:00', NULL, NULL, 'https://images.unsplash.com/photo-1603190287605-e6ade32fa852?w=800', NULL),
@@ -90,9 +71,7 @@ INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum
 ('Opatija ponovno trči za srce', 'Peto izdanje humanitarne utrke "Trči za srce", dio programa Dana srca u Opatiji, nudi trase od 5 i 10 kilometara za sve generacije. Sudjeluju i psi uz odgovoran nadzor vlasnika, a prikupljena sredstva idu u humanitarne svrhe.', 5, 'Slatina', 'Opatija', NULL, '2026-09-26 10:00:00', NULL, 0, 'https://images.unsplash.com/photo-1530143311094-34d807799e8f?w=800', 'https://danisrca.com'),
 ('Dark Circle Fest XIII', 'Trinaesto izdanje najmračnijeg regionalnog festivala u Klubu Palach donosi dva dana s 12 pažljivo odabranih bendova metal i rock scene. Uz glazbeni program tu je i tradicionalni Glam Floor te humanitarna akcija za sklonište za pse u Viškovu.', 6, 'Klub Palach', 'Rijeka', NULL, '2026-09-11 20:00:00', '2026-09-13 03:00:00', 18, 'https://images.unsplash.com/photo-1742047959980-2cf34dfb9552?w=800', NULL);
 
--- ------------------------------------------------------------
 -- Događanja - listopad 2026
--- ------------------------------------------------------------
 INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum_pocetka, datum_zavrsetka, cijena, slika_url, web_link) VALUES
 ('Ane Paška i Val De Beek - promocija albuma "Odadenjena"', 'Multimedijalna umjetnica Ane Paška predstavlja svoj debitantski album "Odadenjena", nastao kroz dvadeset godina rada, u pratnji sastava Val De Beek i brojnih gostujućih glazbenika. Spoj akustičnih instrumenata, sloja vokala i pripovijedanja stvara intiman i pomalo ironičan zvučni svijet.', 1, 'Hrvatski kulturni dom na Sušaku (HKD)', 'Rijeka', NULL, '2026-10-01 20:00:00', NULL, 25, 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800', NULL),
 ('Zabranjeno pušenje kao Neuštekani', 'Legendarni sastav vraća se u Rijeku s akustičnim projektom "Neuštekani" - poznate pjesme dobivaju posve nov, intiman zvuk, uz priče iz pozadine njihovog nastanka. Program je dio turneje povodom 40. godišnjice kultnog albuma "Das ist Walter".', 1, 'Hrvatski kulturni dom na Sušaku (HKD)', 'Rijeka', NULL, '2026-10-09 20:00:00', NULL, 33, 'https://images.unsplash.com/photo-1603190287605-e6ade32fa852?w=800', NULL),
@@ -104,16 +83,12 @@ INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum
 ('Saša Kovačević @ Rijeka', 'Jedan od najpopularnijih regionalnih pop izvođača slavi 20 godina karijere velikim koncertom u Exportdrvu, pod nazivom "Jedina: 20 godina zajedničkih emocija". Publiku očekuju najveći hitovi koji su obilježili dva desetljeća ljubavnih priča.', 1, 'Exportdrvo', 'Rijeka', NULL, '2026-10-23 20:00:00', NULL, NULL, 'https://images.unsplash.com/photo-1450044804117-534ccd6e6a3a?w=800', 'https://www.eventim.hr/artist/sasa-kovacevic/sasa-kovacevic-rijeka-4221424/'),
 ('Bruno Mičetić: Guitars'' Dialogue - Echoes Of The Earth', 'Gitarist čiju je karijeru oblikovao i jazz i rock dolazi u Opatiju s programom u kojem akustična i električna gitara vode dijalog. Večer instrumentalne glazbe za ljubitelje raznolikih gitarskih zvukova.', 1, 'Opatija', 'Opatija', NULL, '2026-10-23 20:00:00', NULL, NULL, 'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800', 'https://www.eventim.hr/artist/bruno-micetic/');
 
--- ------------------------------------------------------------
 -- Favoriti (demo korisnik Iva je spremila par događanja)
--- ------------------------------------------------------------
 INSERT INTO favoriti (korisnik_id, dogadanje_id) VALUES
 (2, 1),
 (2, 3);
 
--- ------------------------------------------------------------
 -- Rezervacije (demo korisnik Iva je rezervirala mjesta)
--- ------------------------------------------------------------
 INSERT INTO rezervacije (korisnik_id, dogadanje_id, broj_mjesta, status) VALUES
 (2, 2, 2, 'potvrdena'),
 (2, 5, 1, 'na_cekanju');

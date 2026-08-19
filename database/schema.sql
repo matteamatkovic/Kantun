@@ -1,10 +1,7 @@
--- ============================================================
 -- Kantun - baza podataka
--- ============================================================
--- Ne stvara novu bazu (nema CREATE DATABASE/USE) - pokreće se nad bazom
--- na koju si već spojen/a u HeidiSQL-u (F9 = Execute SQL). Nakon ove
--- skripte pokrenuti i seed.sql za početne podatke.
--- ============================================================
+-- ne stvara novu bazu (nema CREATE DATABASE/USE), pokreće se nad bazom na
+-- koju si već spojen/a u HeidiSQL-u (F9 = Execute SQL). poslije ove skripte
+-- pokreni i seed.sql za početne podatke
 
 SET NAMES utf8mb4;
 
@@ -17,9 +14,7 @@ DROP TABLE IF EXISTS dogadanja;
 DROP TABLE IF EXISTS kategorije;
 DROP TABLE IF EXISTS korisnici;
 
--- ------------------------------------------------------------
 -- Korisnici (obični korisnici i administratori)
--- ------------------------------------------------------------
 CREATE TABLE korisnici (
   id             INT AUTO_INCREMENT PRIMARY KEY,
   ime            VARCHAR(100) NOT NULL,
@@ -30,9 +25,7 @@ CREATE TABLE korisnici (
   kreiran        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
 -- Kategorije događanja (npr. Glazba, Kazalište, Gastronomija...)
--- ------------------------------------------------------------
 CREATE TABLE kategorije (
   id     INT AUTO_INCREMENT PRIMARY KEY,
   naziv  VARCHAR(100) NOT NULL UNIQUE,
@@ -40,12 +33,10 @@ CREATE TABLE kategorije (
   ikona  VARCHAR(50) NOT NULL DEFAULT 'event'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
 -- Događanja (eventi) - sve informacije o eventu u jednoj tablici,
 -- uključujući mjesto/grad i poveznicu za više info / društvene mreže.
 -- Napomena o koloni "cijena": NULL = cijena nije poznata (npr. uvezeno
 -- automatski pa nije provjereno), 0 = potvrđeno besplatan ulaz.
--- ------------------------------------------------------------
 CREATE TABLE dogadanja (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   naziv           VARCHAR(200) NOT NULL,
@@ -65,9 +56,7 @@ CREATE TABLE dogadanja (
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
 -- Favoriti (korisnik je spremio događanje)
--- ------------------------------------------------------------
 CREATE TABLE favoriti (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   korisnik_id   INT NOT NULL,
@@ -80,9 +69,7 @@ CREATE TABLE favoriti (
   UNIQUE KEY jedan_favorit_po_korisniku (korisnik_id, dogadanje_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ------------------------------------------------------------
 -- Rezervacije (prijava interesa / rezervacija mjesta na događanju)
--- ------------------------------------------------------------
 CREATE TABLE rezervacije (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   korisnik_id   INT NOT NULL,

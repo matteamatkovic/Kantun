@@ -123,8 +123,7 @@
           <h2>Zašto Kantun?</h2>
           <p>
             Kantun povezuje događanja iz cijelog Kvarnera na jednom mjestu — bez
-            potrebe da pratiš desetke različitih stranica i profila. Lokalni
-            organizatori objavljuju svoje evente izravno kroz admin sučelje.
+            potrebe da pratiš desetke različitih stranica i profila. 
           </p>
         </div>
 

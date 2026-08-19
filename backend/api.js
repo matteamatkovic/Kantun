@@ -16,13 +16,10 @@ const app = express()
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:9000' }))
 app.use(express.json())
 
-// ------------------------------------------------------------
-// Spajanje na bazu podataka
-// Koristi pool umjesto jedne konekcije - fakultetski server (student.veleri.hr)
-// zna povremeno prekinuti neaktivnu vezu, a pool automatski otvori novu
-// konekciju za sljedeći upit umjesto da cijeli backend ostane mrtav.
-// .promise() na kraju da možemo pisati await umjesto callbacka.
-// ------------------------------------------------------------
+// pool umjesto jedne konekcije - fakultetski server (student.veleri.hr) zna
+// povremeno prekinuti neaktivnu vezu, a pool onda samo otvori novu za
+// sljedeći upit umjesto da cijeli backend ostane mrtav
+// .promise() na kraju da mogu pisati await umjesto callbacka
 const db = mysql
   .createPool({
     host: process.env.DB_HOST,
@@ -37,11 +34,9 @@ const db = mysql
   })
   .promise()
 
-// ------------------------------------------------------------
-// Pomoćne funkcije za JWT autentikaciju
-// ------------------------------------------------------------
+// pomoćne funkcije za JWT autentikaciju
 
-// Provjerava je li korisnik prijavljen (ima valjan token)
+// provjerava je li korisnik prijavljen (ima valjan token)
 function provjeriPrijavu (req, res, next) {
   const header = req.headers.authorization || ''
   const token = header.startsWith('Bearer ') ? header.slice(7) : null
@@ -58,7 +53,7 @@ function provjeriPrijavu (req, res, next) {
   }
 }
 
-// Provjerava je li prijavljeni korisnik admin (koristi se NAKON provjeriPrijavu)
+// provjerava je li prijavljeni korisnik admin (mora ići poslije provjeriPrijavu)
 function provjeriAdmina (req, res, next) {
   if (!req.korisnik || req.korisnik.uloga !== 'admin') {
     return res.status(403).json({ poruka: 'Nemate ovlasti za ovu akciju.' })
@@ -74,24 +69,20 @@ function napraviToken (korisnik) {
   )
 }
 
-// Zajednički SELECT za događanja - uz event odmah povuče i naziv/boju/ikonu
-// kategorije (JOIN), da frontend ne mora slati poseban poziv za svaku od njih.
+// zajednički SELECT za događanja, uz event odmah povuče i naziv/boju/ikonu
+// kategorije (JOIN) da frontend ne mora zvati posebnu rutu za svaku od njih
 const DOGADANJA_UPIT = `
   SELECT d.*, k.naziv AS kategorija_naziv, k.boja AS kategorija_boja, k.ikona AS kategorija_ikona
   FROM dogadanja d
   LEFT JOIN kategorije k ON k.id = d.kategorija_id
 `
 
-// ------------------------------------------------------------
-// Provjera da server radi
-// ------------------------------------------------------------
+// samo da se vidi da server radi (koristim ovo i kod deploya da provjerim)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', vrijeme: new Date().toISOString() })
 })
 
-// ==============================================================
-// AUTENTIKACIJA (registracija, prijava, podaci o meni)
-// ==============================================================
+// --- autentikacija (registracija, prijava, podaci o meni) ---
 
 // POST /api/auth/registracija - novi korisnički račun
 app.post('/api/auth/registracija', async (req, res) => {
@@ -175,9 +166,7 @@ app.get('/api/auth/ja', provjeriPrijavu, async (req, res) => {
   }
 })
 
-// ==============================================================
-// KATEGORIJE (čitanje za sve, uređivanje samo za admina)
-// ==============================================================
+// --- kategorije (čitanje za sve, uređivanje samo za admina) ---
 
 // GET /api/kategorije - popis svih kategorija
 app.get('/api/kategorije', async (req, res) => {
@@ -234,16 +223,11 @@ app.delete('/api/kategorije/:id', provjeriPrijavu, provjeriAdmina, async (req, r
   }
 })
 
-// ==============================================================
-// DOGAĐANJA (pregled, pretraga/filteri, CRUD za admina)
-// ==============================================================
+// --- događanja (pregled, pretraga/filteri, CRUD za admina) ---
 
-// GET /api/dogadanja - popis događanja uz pretragu/filtere (query parametri)
-//   ?pretraga=riječ   -> traži u nazivu i opisu
-//   ?kategorija_id=1  -> filtrira po kategoriji
-//   ?grad=Rijeka      -> filtrira po gradu
-//   ?besplatno=1      -> samo besplatna događanja
-//   ?nadolazeca=1     -> samo događanja koja tek dolaze (datum_pocetka >= danas)
+// GET /api/dogadanja - popis događanja, podržava query parametre:
+// pretraga (traži u nazivu/opisu), kategorija_id, grad, besplatno=1,
+// nadolazeca=1 (samo eventi koji tek dolaze)
 app.get('/api/dogadanja', async (req, res) => {
   try {
     const { pretraga, kategorija_id, grad, besplatno, nadolazeca } = req.query
@@ -329,8 +313,8 @@ app.post('/api/dogadanja', provjeriPrijavu, provjeriAdmina, async (req, res) => 
       [
         naziv, opis || null, kategorija_id || null, lokacija || null, grad || null, adresa || null,
         datum_pocetka, datum_zavrsetka || null,
-        // prazan string iz forme mora postati NULL, ne "0" - inače bi admin
-        // slučajno označio event kao besplatan umjesto "cijena nepoznata"
+        // prazno polje iz forme mora ići kao NULL a ne "0", inače bi event
+        // ispao besplatan umjesto "cijena nepoznata"
         cijena === undefined || cijena === '' ? null : cijena,
         slika_url || null, web_link || null
       ]
@@ -381,9 +365,7 @@ app.delete('/api/dogadanja/:id', provjeriPrijavu, provjeriAdmina, async (req, re
   }
 })
 
-// ==============================================================
-// FAVORITI (svaki prijavljeni korisnik ima svoj popis)
-// ==============================================================
+// --- favoriti (svaki prijavljeni korisnik ima svoj popis) ---
 
 // GET /api/favoriti - moji favoriti (s podacima o događanju)
 app.get('/api/favoriti', provjeriPrijavu, async (req, res) => {
@@ -407,9 +389,8 @@ app.get('/api/favoriti', provjeriPrijavu, async (req, res) => {
 // POST /api/favoriti/:dogadanjeId - dodaj u favorite
 app.post('/api/favoriti/:dogadanjeId', provjeriPrijavu, async (req, res) => {
   try {
-    // INSERT IGNORE umjesto običnog INSERT-a - ako korisnik već ima ovo u
-    // favoritima, unique constraint u bazi bi inače bacio grešku, a ovako se
-    // to jednostavno preskoči bez rušenja zahtjeva
+    // INSERT IGNORE jer ako korisnik već ima ovo u favoritima, unique
+    // constraint u bazi bi bacio grešku - ovako se samo tiho preskoči
     await db.query(
       'INSERT IGNORE INTO favoriti (korisnik_id, dogadanje_id) VALUES (?, ?)',
       [req.korisnik.id, req.params.dogadanjeId]
@@ -435,11 +416,9 @@ app.delete('/api/favoriti/:dogadanjeId', provjeriPrijavu, async (req, res) => {
   }
 })
 
-// ==============================================================
-// REZERVACIJE (korisnik rezervira mjesto, admin upravlja statusima)
-// ==============================================================
+// --- rezervacije (korisnik rezervira mjesto, admin upravlja statusima) ---
 
-// GET /api/rezervacije - moje rezervacije, ili SVE ako je admin i šalje ?sve=1
+// GET /api/rezervacije - moje rezervacije, ili sve ako je admin i pošalje ?sve=1
 app.get('/api/rezervacije', provjeriPrijavu, async (req, res) => {
   try {
     if (req.query.sve === '1' && req.korisnik.uloga === 'admin') {
@@ -518,12 +497,8 @@ app.delete('/api/rezervacije/:id', provjeriPrijavu, async (req, res) => {
   }
 })
 
-// ==============================================================
-// UVOZ - ručni uvoz stvarnih događanja s Entrio.hr (Admin -> Pregled)
-// Logika dohvaćanja/parsiranja je u zasebnoj datoteci entrio.js jer je
-// dovoljno opsežna da bi ju bilo nepregledno gurati ovdje - vidi tu
-// datoteku za objašnjenje kako i zašto uvoz radi kako radi.
-// ==============================================================
+// ručni uvoz eventova s Entrio.hr (dugme u Admin -> Pregled), logika
+// dohvaćanja/parsiranja je u entrio.js jer je predugačka da ide ovdje
 
 app.post('/api/uvoz', provjeriPrijavu, provjeriAdmina, async (req, res) => {
   try {
@@ -533,9 +508,8 @@ app.post('/api/uvoz', provjeriPrijavu, provjeriAdmina, async (req, res) => {
     let preskoceno = 0
 
     for (const event of pronadeno) {
-      // Ne uvozimo duplikat: ako događanje s istim nazivom na isti dan već
-      // postoji, preskačemo ga (i da ponovni klik ne puni bazu istim
-      // eventima, i da ne pregazimo eventualne ručne izmjene admina).
+      // preskoči ako event s istim nazivom na isti dan već postoji - da
+      // ponovni klik na "Uvezi" ne puni bazu duplikatima
       const [postojeci] = await db.query(
         'SELECT id FROM dogadanja WHERE naziv = ? AND DATE(datum_pocetka) = DATE(?)',
         [event.naziv, event.datum_pocetka]

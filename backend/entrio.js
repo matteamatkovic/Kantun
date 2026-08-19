@@ -1,17 +1,11 @@
-// Jednostavan "uvoznik" stvarnih događanja s Entrio.hr (hrvatska platforma
-// za prodaju ulaznica). Pokreće se ISKLJUČIVO ručno, klikom na gumb u admin
-// panelu (nema cron/pozadinskog raspoređivača) - jednostavnije za objasniti
-// i admin ima potpunu kontrolu kad se uvoz pokreće.
+// jednostavan "uvoznik" eventova s Entrio.hr, pokreće se ručno klikom na
+// gumb u admin panelu (bez crona, admin sam odlučuje kad se uvoz pokreće)
 //
-// VAŽNA NAPOMENA (pročitaj prije nego što pomisliš da nešto ne valja):
-// Ovaj kod NE traži točne CSS klase na Entrio.hr stranici (te se mogu
-// promijeniti kod redizajna stranice i pokvariti "krhki" scraper). Umjesto
-// toga, traži poveznice (<a>) čiji obližnji tekst sadrži datum u obliku
-// DD.MM.GGGG - to je uzorak koji je puno stabilniji od naziva CSS klasa.
-// Ako Entrio.hr znatno promijeni izgled stranice, uvoz jednostavno neće
-// pronaći ništa (vratit će 0 novih događanja) - NEĆE srušiti aplikaciju.
-// Aplikacija radi normalno i bez ovog uvoza, jer već dolazi sa stvarnim
-// događanjima u seed.sql.
+// umjesto da tražim točne CSS klase na stranici (te se mijenjaju kod svakog
+// redizajna i onda scraper prestane raditi), tražim linkove čiji tekst u
+// blizini sadrži datum u obliku DD.MM.GGGG - puno stabilniji uzorak. Ako
+// Entrio promijeni izgled stranice, uvoz jednostavno vrati 0 rezultata,
+// aplikacija i dalje normalno radi sa stvarnim eventima iz seed.sql
 
 const axios = require('axios')
 const cheerio = require('cheerio')

@@ -217,6 +217,8 @@ function otvoriDialog(event) {
       lokacija: event.lokacija,
       grad: event.grad,
       adresa: event.adresa,
+      // baza vraća puni ISO datum, a datetime-local input traži samo
+      // "YYYY-MM-DDTHH:mm" pa se ostatak jednostavno odreže
       datum_pocetka: event.datum_pocetka?.slice(0, 16) || '',
       datum_zavrsetka: event.datum_zavrsetka?.slice(0, 16) || '',
       cijena:
