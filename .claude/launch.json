@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kantun-backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "backend",
+      "port": 4000
+    },
+    {
+      "name": "kantun-frontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["quasar", "dev"],
+      "cwd": "frontend",
+      "port": 9000
+    }
+  ]
+}

@@ -1,25 +1,22 @@
 // Quasar Sass (& SCSS) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
+// Kantun - tamna navy pozadina s cijan/tirkiznim naglaskom
+// (dizajn po uzoru na Lovable predložak vlasnice projekta).
 
-// Check documentation for full list of Quasar variables
+// Cijan / tirkizna - glavna boja aplikacije (gumbi, linkovi, naglasci)
+$primary: #22d3ee;
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+// Dublja tirkizna/teal - sekundarni naglasak
+$secondary: #0e7490;
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+// Toplo jantarna - kontrastni naglasak za cijene/isticanje
+$accent: #f59e0b;
 
-$primary: #1976d2;
-$secondary: #26a69a;
-$accent: #9c27b0;
+// Tamno navy - pozadine kartica/headera, i "dark" tema
+$dark: #0f172a;
+$dark-page: #0a0f1e;
 
-$dark: #1d1d1d;
-$dark-page: #121212;
-
-$positive: #21ba45;
-$negative: #c10015;
-$info: #31ccec;
-$warning: #f2c037;
+$positive: #34d399;
+$negative: #f87171;
+$info: #38bdf8;
+$warning: #fbbf24;

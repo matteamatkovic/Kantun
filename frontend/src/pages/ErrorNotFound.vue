@@ -5,9 +5,7 @@
 
       <h1>Stranica nije pronađena</h1>
 
-      <p>
-        Nažalost, stranica koju tražite ne postoji.
-      </p>
+      <p> Nažalost, stranica koju tražite ne postoji. </p>
 
       <q-btn
         unelevated
@@ -20,8 +18,7 @@
   </q-page>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style scoped>
 .error-page {
@@ -38,16 +35,16 @@
 .error-number {
   font-size: 100px;
   font-weight: 800;
-  color: #173f4f;
+  color: var(--kantun-tekst);
 }
 
 h1 {
   margin: 0 0 15px;
-  color: #173f4f;
+  color: var(--kantun-tekst);
 }
 
 p {
   margin-bottom: 25px;
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
 }
 </style>

@@ -1,199 +1,334 @@
 <template>
   <q-page class="details-page">
+    <div v-if="eventStore.ucitavanje && !dogadanje" class="loading-state">
+      <q-spinner color="primary" size="48px" />
+    </div>
 
-    <div class="details-container">
+    <div v-else-if="!dogadanje" class="loading-state">
+      <p>Događanje nije pronađeno.</p>
+    </div>
 
+    <div v-else class="details-container">
       <q-btn
         flat
         no-caps
         icon="arrow_back"
         label="Natrag na događanja"
         class="back-button"
-        @click="$router.back()"
+        to="/dogadanja"
       />
 
-      <q-card
-        flat
-        bordered
-        class="details-card"
-      >
-
+      <q-card flat bordered class="details-card">
         <q-img
-          :src="dogadanje.slika"
+          :src="dogadanje.slika_url || zadanaSlika"
           class="details-image"
         />
 
         <q-card-section class="details-content">
-
           <div class="heading-row">
-
             <div>
-
-              <div class="category">
-                {{ dogadanje.kategorija }}
+              <div
+                class="category"
+                :style="{
+                  color: dogadanje.kategorija_boja || 'var(--kantun-zlatna)'
+                }"
+              >
+                <q-icon
+                  v-if="dogadanje.kategorija_ikona"
+                  :name="dogadanje.kategorija_ikona"
+                  size="16px"
+                />
+                {{ dogadanje.kategorija_naziv || 'Ostalo' }}
               </div>
 
               <h1>
                 {{ dogadanje.naziv }}
               </h1>
-
             </div>
 
             <q-btn
+              v-if="authStore.jePrijavljen"
               round
+              dense
               unelevated
-              :icon="
-                dogadanje.omiljeno
-                  ? 'favorite'
-                  : 'favorite_border'
-              "
+              size="lg"
+              :icon="jeOmiljeno ? 'favorite' : 'favorite_border'"
               class="favorite-button"
-              @click="dogadanje.omiljeno = !dogadanje.omiljeno"
+              @click="promijeniOmiljeno"
             />
-
           </div>
 
           <div class="information-grid">
-
             <div class="information-item">
               <q-icon name="event" />
-
               <div>
                 <small>Datum</small>
-                <strong>{{ dogadanje.datum }}</strong>
+                <strong>{{ formatiranDatum }}</strong>
               </div>
             </div>
 
-            <div class="information-item">
-              <q-icon name="schedule" />
-
-              <div>
-                <small>Vrijeme</small>
-                <strong>{{ dogadanje.vrijeme }}</strong>
-              </div>
-            </div>
-
-            <div class="information-item">
+            <div
+              v-if="dogadanje.lokacija || dogadanje.grad"
+              class="information-item"
+            >
               <q-icon name="location_on" />
-
               <div>
                 <small>Lokacija</small>
-                <strong>{{ dogadanje.lokacija }}</strong>
+                <strong>{{ lokacijaTekst }}</strong>
               </div>
             </div>
 
             <div class="information-item">
-              <q-icon name="person" />
-
+              <q-icon name="sell" />
               <div>
-                <small>Organizator</small>
-                <strong>{{ dogadanje.organizator }}</strong>
+                <small>Cijena</small>
+                <strong>{{ cijenaTekst }}</strong>
               </div>
             </div>
-
           </div>
 
           <q-separator class="q-my-xl" />
 
-          <section>
-            <h2>
-              O događanju
-            </h2>
-
+          <section v-if="dogadanje.opis">
+            <h2>O događanju</h2>
             <p class="description">
               {{ dogadanje.opis }}
             </p>
           </section>
 
-          <section class="additional-info">
-
-            <div>
-              <strong>Cijena</strong>
-              <span>{{ dogadanje.cijena }}</span>
+          <!-- Karta i više informacija -->
+          <section
+            v-if="
+              dogadanje.lokacija ||
+              dogadanje.grad ||
+              dogadanje.adresa ||
+              dogadanje.web_link
+            "
+            class="q-mt-xl location-section"
+          >
+            <h2>Lokacija</h2>
+            <div class="location-actions">
+              <q-btn
+                v-if="dogadanje.lokacija || dogadanje.grad || dogadanje.adresa"
+                outline
+                no-caps
+                icon="map"
+                label="Otvori na karti"
+                class="gold-outline-btn"
+                @click="otvoriMapu"
+              />
+              <q-btn
+                v-if="dogadanje.web_link"
+                outline
+                no-caps
+                icon="open_in_new"
+                label="Više informacija"
+                class="gold-outline-btn"
+                type="a"
+                :href="dogadanje.web_link"
+                target="_blank"
+              />
             </div>
-
-            <div>
-              <strong>Kategorija</strong>
-              <span>{{ dogadanje.kategorija }}</span>
-            </div>
-
           </section>
 
           <div class="actions">
-
+            <div v-if="!cijenaNepoznata" class="actions-price">
+              <small>Cijena</small>
+              <strong>{{ cijenaTekst }}</strong>
+            </div>
             <q-btn
+              v-if="authStore.jePrijavljen"
               unelevated
               no-caps
-              icon="map"
-              label="Prikaži na karti"
-              class="map-button"
-              @click="otvoriMapu"
+              icon="confirmation_number"
+              label="Rezerviraj mjesto"
+              class="reserve-button"
+              @click="rezervacijaDialog = true"
             />
-
             <q-btn
-              outline
+              v-else
+              unelevated
               no-caps
-              :icon="
-                dogadanje.omiljeno
-                  ? 'favorite'
-                  : 'favorite_border'
-              "
-              :label="
-                dogadanje.omiljeno
-                  ? 'Spremljeno u favorite'
-                  : 'Spremi u favorite'
-              "
-              class="save-button"
-              @click="dogadanje.omiljeno = !dogadanje.omiljeno"
+              icon="login"
+              label="Prijavi se za rezervaciju"
+              class="reserve-button"
+              :to="{ path: '/prijava', query: { redirect: $route.fullPath } }"
             />
-
           </div>
-
         </q-card-section>
-
       </q-card>
-
     </div>
 
+    <!-- Dialog rezervacije -->
+    <q-dialog v-model="rezervacijaDialog">
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Rezervacija mjesta</div>
+        </q-card-section>
+
+        <q-card-section class="q-gutter-md">
+          <q-input
+            v-model.number="brojMjesta"
+            outlined
+            type="number"
+            min="1"
+            label="Broj mjesta"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat no-caps label="Odustani" v-close-popup />
+          <q-btn
+            unelevated
+            no-caps
+            label="Potvrdi"
+            color="primary"
+            :loading="spremanje"
+            @click="posaljiRezervaciju"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { Notify } from 'quasar'
+import { useEventStore } from '@/stores/events'
+import { useFavoriteStore } from '@/stores/favorites'
+import { useAuthStore } from '@/stores/auth'
+import { useReservationStore } from '@/stores/reservations'
 
-const dogadanje = reactive({
-  id: 1,
-  naziv: 'Ljeto na Gradini',
-  datum: '8. kolovoza 2026.',
-  vrijeme: '21:00',
-  lokacija: 'Trsatska gradina, Rijeka',
-  kategorija: 'Koncerti',
-  organizator: 'Kantun događanja',
-  cijena: 'Prema organizatoru',
-  omiljeno: false,
-  slika:
-    'https://images.unsplash.com/photo-1501386761578-eac5c94b800a',
-  opis:
-    'Ljeto na Gradini donosi večer glazbe i zabave na jednoj od najpoznatijih lokacija u Rijeci. Posjetitelji mogu uživati u programu na otvorenom i posebnoj atmosferi Trsatske gradine.'
+const route = useRoute()
+const eventStore = useEventStore()
+const favoriteStore = useFavoriteStore()
+const authStore = useAuthStore()
+const reservationStore = useReservationStore()
+
+const zadanaSlika =
+  'https://images.unsplash.com/photo-1501386761578-eac5c94b800a'
+const rezervacijaDialog = ref(false)
+const brojMjesta = ref(1)
+const spremanje = ref(false)
+
+const dogadanje = computed(() => eventStore.trenutniEvent)
+const jeOmiljeno = computed(
+  () => dogadanje.value && favoriteStore.jeOmiljeno(dogadanje.value.id)
+)
+
+const formatiranDatum = computed(() => {
+  if (!dogadanje.value?.datum_pocetka) return ''
+  const d = new Date(dogadanje.value.datum_pocetka)
+  let tekst = d.toLocaleDateString('hr-HR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+  if (dogadanje.value.datum_zavrsetka) {
+    const d2 = new Date(dogadanje.value.datum_zavrsetka)
+    tekst +=
+      ' — ' +
+      d2.toLocaleDateString('hr-HR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+  }
+  return tekst
 })
 
-function otvoriMapu () {
-  const lokacija = encodeURIComponent(
-    dogadanje.lokacija
-  )
+const lokacijaTekst = computed(() => {
+  const { lokacija, grad } = dogadanje.value || {}
+  if (lokacija && grad) return `${lokacija}, ${grad}`
+  return lokacija || grad || ''
+})
 
+const cijenaNepoznata = computed(() => {
+  const e = dogadanje.value
+  return !e || e.cijena === null || e.cijena === undefined
+})
+
+const cijenaTekst = computed(() => {
+  const e = dogadanje.value
+  if (!e) return ''
+  // cijena === null/undefined znači "cijena nepoznata" (npr. uvezeno
+  // automatski), a 0 znači potvrđeno besplatan ulaz.
+  if (cijenaNepoznata.value) {
+    return 'Cijena nije poznata - provjeri na poveznici ispod'
+  }
+  if (Number(e.cijena) === 0) return 'Besplatan ulaz'
+  return `${Number(e.cijena).toFixed(2)} €`
+})
+
+function otvoriMapu() {
+  const e = dogadanje.value
+  const dijelovi = [e?.lokacija, e?.adresa, e?.grad].filter(Boolean)
+  const upit = dijelovi.length ? dijelovi.join(', ') : e?.naziv
   window.open(
-    `https://www.google.com/maps/search/?api=1&query=${lokacija}`,
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(upit)}`,
     '_blank'
   )
 }
+
+async function promijeniOmiljeno() {
+  try {
+    await favoriteStore.prekidaciOmiljeno(dogadanje.value.id)
+  } catch (err) {
+    Notify.create({
+      type: 'negative',
+      message: 'Greška pri spremanju favorita.'
+    })
+  }
+}
+
+async function posaljiRezervaciju() {
+  spremanje.value = true
+  try {
+    await reservationStore.kreirajRezervaciju({
+      dogadanje_id: dogadanje.value.id,
+      broj_mjesta: brojMjesta.value || 1
+    })
+    Notify.create({ type: 'positive', message: 'Rezervacija je poslana!' })
+    rezervacijaDialog.value = false
+  } catch (err) {
+    Notify.create({
+      type: 'negative',
+      message: err.response?.data?.poruka || 'Greška pri rezervaciji.'
+    })
+  } finally {
+    spremanje.value = false
+  }
+}
+
+function ucitaj() {
+  eventStore.ucitajEvent(route.params.idOrSlug)
+}
+
+watch(() => route.params.idOrSlug, ucitaj)
+
+onMounted(() => {
+  ucitaj()
+  if (authStore.jePrijavljen) favoriteStore.ucitajFavorite()
+})
 </script>
 
 <style scoped lang="scss">
 .details-page {
   min-height: 100%;
-  background: #fafcfc;
-  color: #173f4f;
+  background: var(--kantun-pozadina);
+  color: var(--kantun-tekst);
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 100px 0;
 }
 
 .details-container {
@@ -204,13 +339,14 @@ function otvoriMapu () {
 
 .back-button {
   margin-bottom: 20px;
-  color: #355965;
+  color: var(--kantun-tekst-suptilan);
 }
 
 .details-card {
   overflow: hidden;
   border-radius: 20px;
-  background: white;
+  background: var(--kantun-bg-card);
+  border-color: var(--kantun-granica);
 }
 
 .details-image {
@@ -228,7 +364,9 @@ function otvoriMapu () {
 }
 
 .category {
-  color: #d09d1e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
@@ -241,8 +379,14 @@ h1 {
 }
 
 .favorite-button {
-  color: #173f4f;
-  background: #f4d35e;
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  padding: 0;
+  color: #0a0f1e;
+  background: var(--kantun-zlatna-svijetlo);
+  flex-shrink: 0;
 }
 
 .information-grid {
@@ -259,14 +403,14 @@ h1 {
 }
 
 .information-item .q-icon {
-  color: #d09d1e;
+  color: var(--kantun-zlatna);
   font-size: 28px;
 }
 
 .information-item small {
   display: block;
   margin-bottom: 4px;
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
 }
 
 .information-item strong {
@@ -274,40 +418,48 @@ h1 {
 }
 
 .description {
-  color: #5d7178;
+  color: var(--kantun-tekst-suptilan);
   font-size: 16px;
   line-height: 1.8;
+  white-space: pre-line;
 }
 
-.additional-info {
+.location-actions {
   display: flex;
-  gap: 50px;
-  margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.additional-info div {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.additional-info span {
-  color: #71858b;
+.gold-outline-btn {
+  border: 1px solid var(--kantun-zlatna);
+  color: var(--kantun-zlatna-svijetlo);
 }
 
 .actions {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   margin-top: 35px;
 }
 
-.map-button {
-  background: #173f4f;
-  color: white;
+.actions-price {
+  display: flex;
+  flex-direction: column;
 }
 
-.save-button {
-  color: #173f4f;
+.actions-price small {
+  color: var(--kantun-tekst-suptilan);
+}
+
+.actions-price strong {
+  color: var(--kantun-zlatna-svijetlo);
+  font-size: 22px;
+}
+
+.reserve-button {
+  background: var(--kantun-accent);
+  color: #0a0f1e;
 }
 
 @media (max-width: 600px) {
@@ -329,11 +481,6 @@ h1 {
 
   .actions {
     flex-direction: column;
-  }
-
-  .additional-info {
-    flex-direction: column;
-    gap: 15px;
   }
 }
 </style>

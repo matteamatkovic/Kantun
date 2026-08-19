@@ -11,9 +11,17 @@
       name="viewport"
       content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>"
     />
+    <!--
+      CSP napomena: 'connect-src' i 'img-src' su namjerno malo širi od defaulta
+      jer aplikacija zove vlastiti backend API (Node/Express, obično na drugom
+      portu = drugom originu) i prikazuje slike događanja s vanjskih URL-ova.
+      Lokacija događanja otvara se kao obična poveznica na Google karte (nema
+      iframe karte), pa nije potreban poseban 'frame-src'. Po potrebi suzi
+      'connect-src'/'img-src' na točnu domenu svog API-ja u produkciji.
+    -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';<% if (ctx.dev) { %> connect-src 'self' ws://localhost:*; worker-src 'self' blob:;<% } %>"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' http://localhost:* https: ws://localhost:*; worker-src 'self' blob:;"
     />
 
     <link

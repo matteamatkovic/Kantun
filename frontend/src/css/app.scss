@@ -1,1 +1,91 @@
-// app global css
+// app global css - Kantun
+
+// Inter font (samostalno hostano - puna podrška za hrvatsku abecedu č/ć/š/ž/đ)
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+// Playfair Display - elegantan serif za naslove i logotip (isto tako puna
+// podrška za č/ć/š/ž/đ preko latin-ext raspona ugrađenog u ove datoteke)
+@import '@fontsource/playfair-display/500.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/playfair-display/800.css';
+
+:root {
+  --kantun-more: #e2e8f0;
+  --kantun-more-svijetlo: #22d3ee;
+  --kantun-zlatna: #f59e0b;
+  --kantun-zlatna-svijetlo: #fbbf24;
+  --kantun-pozadina: #0a0f1e;
+  --kantun-bg-card: #111c2f;
+  --kantun-granica: rgba(255, 255, 255, 0.08);
+  --kantun-tekst: #e2e8f0;
+  --kantun-tekst-suptilan: #94a3b8;
+  --kantun-accent: #22d3ee;
+}
+
+body {
+  background: var(--kantun-pozadina);
+  color: var(--kantun-tekst);
+  font-family: 'Inter', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-h1,
+.text-h2,
+.text-h3,
+.text-h4,
+.text-h5,
+.text-h6,
+.q-toolbar__title,
+.kantun-wordmark {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+// Ujednačen izgled kartica u cijeloj aplikaciji
+.kantun-card {
+  border-radius: 16px;
+  background: var(--kantun-bg-card);
+  border: 1px solid var(--kantun-granica);
+}
+
+// Eyebrow oznaka (mali naziv iznad naslova sekcije), korišteno na više stranica
+.kantun-eyebrow {
+  color: var(--kantun-zlatna);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+// Tekstualni wordmark logotipa - koristi se u headeru, mobilnom izborniku
+// i na stranicama prijave/registracije umjesto rasterske slike
+.kantun-wordmark {
+  display: inline-block;
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(
+    120deg,
+    #ffffff 30%,
+    var(--kantun-zlatna-svijetlo) 130%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+::selection {
+  background: var(--kantun-accent);
+  color: var(--kantun-pozadina);
+}

@@ -1,63 +1,56 @@
 <template>
   <q-page class="auth-page">
-
     <div class="auth-container">
+      <router-link to="/" class="auth-logo">
+        <img :src="logoIcon" alt="" class="auth-logo-icon" />
+        <span class="kantun-wordmark">Kantun</span>
+      </router-link>
 
-      <div class="auth-logo">
-        <span>K</span>
-        Kantun
-      </div>
-
-      <q-card
-        flat
-        bordered
-        class="auth-card"
-      >
-
+      <q-card flat bordered class="auth-card">
         <div class="auth-heading">
-
-          <div class="eyebrow">
-            KANTUN
-          </div>
-
-          <h1>
-            Prijava
-          </h1>
-
-          <p>
-            Prijavi se kako bi mogao spremati svoja omiljena
-            događanja.
-          </p>
-
+          <div class="kantun-eyebrow">KANTUN</div>
+          <h1>Prijava</h1>
+          <p
+            >Prijavi se kako bi mogao spremati svoja omiljena događanja i
+            rezervirati ulaznice.</p
+          >
         </div>
 
         <q-form @submit="prijaviSe">
-
           <q-input
             v-model="email"
             outlined
             type="email"
             label="E-mail"
             class="q-mb-md"
-            :rules="[
-              vrijednost =>
-                !!vrijednost ||
-                'Unesite e-mail adresu'
-            ]"
+            :rules="[v => !!v || 'Unesite e-mail adresu']"
           />
 
           <q-input
             v-model="lozinka"
             outlined
-            type="password"
+            :type="prikaziLozinku ? 'text' : 'password'"
             label="Lozinka"
             class="q-mb-lg"
-            :rules="[
-              vrijednost =>
-                !!vrijednost ||
-                'Unesite lozinku'
-            ]"
-          />
+            :rules="[v => !!v || 'Unesite lozinku']"
+          >
+            <template #append>
+              <q-icon
+                :name="prikaziLozinku ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="prikaziLozinku = !prikaziLozinku"
+              />
+            </template>
+          </q-input>
+
+          <q-banner
+            v-if="greska"
+            dense
+            class="bg-red-1 text-negative q-mb-md"
+            rounded
+          >
+            {{ greska }}
+          </q-banner>
 
           <q-btn
             unelevated
@@ -65,40 +58,52 @@
             label="Prijavi se"
             type="submit"
             class="auth-button full-width"
+            :loading="ucitavanje"
           />
-
         </q-form>
+
+        <div class="auth-hint">
+          Demo admin račun: <strong>admin@kantun.hr</strong> /
+          <strong>Kantun2026!</strong>
+        </div>
 
         <div class="auth-link">
           Nemaš račun?
-
-          <router-link to="/register">
-            Registriraj se
-          </router-link>
+          <router-link to="/registracija">Registriraj se</router-link>
         </div>
-
       </q-card>
-
     </div>
-
   </q-page>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import logoIcon from '@/assets/kantun-icon-transparent.png'
 
 const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
 
 const email = ref('')
 const lozinka = ref('')
+const prikaziLozinku = ref(false)
+const ucitavanje = ref(false)
+const greska = ref('')
 
-function prijaviSe () {
-  console.log({
-    email: email.value
-  })
-
-  router.push('/')
+async function prijaviSe() {
+  greska.value = ''
+  ucitavanje.value = true
+  try {
+    await authStore.prijava(email.value, lozinka.value)
+    router.push(route.query.redirect || '/')
+  } catch (err) {
+    greska.value =
+      err.response?.data?.poruka || 'Prijava nije uspjela. Provjeri podatke.'
+  } finally {
+    ucitavanje.value = false
+  }
 }
 </script>
 
@@ -107,7 +112,7 @@ function prijaviSe () {
   min-height: 100%;
   display: flex;
   justify-content: center;
-  background: #fafcfc;
+  background: var(--kantun-pozadina);
 }
 
 .auth-container {
@@ -121,37 +126,30 @@ function prijaviSe () {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 25px;
-  color: #173f4f;
-  font-size: 25px;
-  font-weight: 800;
+  margin-bottom: 30px;
+  text-decoration: none;
 }
 
-.auth-logo span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
-  background: #f4d35e;
+.auth-logo-icon {
+  height: 48px;
+  width: auto;
+  display: block;
+}
+
+.auth-logo .kantun-wordmark {
+  font-size: 30px;
 }
 
 .auth-card {
   padding: 35px;
   border-radius: 18px;
-  background: white;
+  background: var(--kantun-bg-card);
+  border-color: var(--kantun-granica);
+  border-top: 2px solid var(--kantun-zlatna);
 }
 
 .auth-heading {
   margin-bottom: 30px;
-}
-
-.eyebrow {
-  color: #d09d1e;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
 }
 
 h1 {
@@ -160,25 +158,35 @@ h1 {
 }
 
 .auth-heading p {
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
   line-height: 1.5;
 }
 
 .auth-button {
   min-height: 48px;
-  background: #173f4f;
-  color: white;
+  background: var(--kantun-accent);
+  color: #0a0f1e;
   font-weight: 700;
+}
+
+.auth-hint {
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--kantun-tekst-suptilan);
+  font-size: 13px;
+  text-align: center;
 }
 
 .auth-link {
   margin-top: 25px;
   text-align: center;
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
 }
 
 .auth-link a {
-  color: #173f4f;
+  color: var(--kantun-accent);
   font-weight: 700;
   text-decoration: none;
 }

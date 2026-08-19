@@ -1,195 +1,157 @@
 <template>
   <q-page class="calendar-page">
-
     <div class="page-container">
-
       <div class="page-heading">
+        <div class="kantun-eyebrow"> KANTUN </div>
 
-        <div class="eyebrow">
-          KANTUN
-        </div>
-
-        <h1>
-          Kalendar događanja
-        </h1>
+        <h1> Kalendar događanja </h1>
 
         <p>
-          Odaberi datum i pogledaj koja se događanja održavaju
-          na Kvarneru.
+          Odaberi datum i pogledaj koja se događanja održavaju na Kvarneru.
         </p>
-
       </div>
 
       <div class="calendar-layout">
-
-        <q-card
-          flat
-          bordered
-          class="calendar-card"
-        >
-
+        <q-card flat bordered class="calendar-card">
           <q-date
             v-model="odabraniDatum"
             mask="YYYY-MM-DD"
             minimal
             today-btn
+            :events="datumiSDogadajima"
+            event-color="accent"
           />
-
         </q-card>
 
         <div class="day-content">
-
           <div class="selected-date">
-
-            <div class="eyebrow">
-              ODABRANI DATUM
-            </div>
-
-            <h2>
-              {{ formatDatum(odabraniDatum) }}
-            </h2>
-
+            <div class="kantun-eyebrow">ODABRANI DATUM</div>
+            <h2>{{ formatDatum(odabraniDatum) }}</h2>
           </div>
 
-          <div
-            v-if="dogadanjaZaDatum.length"
-            class="events-list"
-          >
+          <div v-if="ucitavanje" class="loading-state">
+            <q-spinner color="primary" size="40px" />
+          </div>
 
+          <div v-else-if="dogadanjaZaDatum.length" class="events-list">
             <q-card
               v-for="event in dogadanjaZaDatum"
               :key="event.id"
               flat
               bordered
               class="calendar-event"
-              @click="otvoriDetalje(event.id)"
+              @click="otvoriDetalje(event)"
             >
-
               <q-img
-                :src="event.slika"
+                :src="event.slika_url || zadanaSlika"
                 width="160px"
                 height="110px"
               />
 
               <div class="event-content">
-
-                <div class="category">
-                  {{ event.kategorija }}
+                <div
+                  class="category"
+                  :style="{
+                    color: event.kategorija_boja || 'var(--kantun-zlatna)'
+                  }"
+                >
+                  {{ event.kategorija_naziv || 'Ostalo' }}
                 </div>
 
-                <h3>
-                  {{ event.naziv }}
-                </h3>
+                <h3>{{ event.naziv }}</h3>
 
-                <div class="event-info">
+                <div v-if="event.datum_pocetka" class="event-info">
                   <q-icon name="schedule" />
-                  {{ event.vrijeme }}
+                  {{ formatVrijeme(event.datum_pocetka) }}
                 </div>
 
-                <div class="event-info">
+                <div v-if="event.lokacija || event.grad" class="event-info">
                   <q-icon name="location_on" />
-                  {{ event.lokacija }}
+                  {{
+                    event.lokacija
+                      ? `${event.lokacija}, ${event.grad}`
+                      : event.grad
+                  }}
                 </div>
-
               </div>
-
             </q-card>
-
           </div>
 
-          <div
-            v-else
-            class="empty-day"
-          >
-
-            <q-icon
-              name="event_available"
-              size="60px"
-            />
-
-            <h3>
-              Nema događanja
-            </h3>
-
-            <p>
-              Za odabrani datum nema evidentiranih događanja.
-            </p>
-
+          <div v-else class="empty-day">
+            <q-icon name="event_available" size="60px" />
+            <h3>Nema događanja</h3>
+            <p>Za odabrani datum nema evidentiranih događanja.</p>
           </div>
-
         </div>
-
       </div>
-
     </div>
-
   </q-page>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useEventStore } from '@/stores/events'
 
 const router = useRouter()
+const eventStore = useEventStore()
+const zadanaSlika =
+  'https://images.unsplash.com/photo-1501386761578-eac5c94b800a'
 
-const odabraniDatum = ref('2026-08-08')
+const danas = new Date()
+const odabraniDatum = ref(danas.toISOString().slice(0, 10))
+const ucitavanje = ref(false)
 
-const dogadanja = [
-  {
-    id: 1,
-    naziv: 'Ljeto na Gradini',
-    datum: '2026-08-08',
-    vrijeme: '21:00',
-    lokacija: 'Trsatska gradina, Rijeka',
-    kategorija: 'Koncerti',
-    slika: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a'
-  },
-  {
-    id: 2,
-    naziv: 'Riječki koncert',
-    datum: '2026-08-09',
-    vrijeme: '20:00',
-    lokacija: 'Rijeka',
-    kategorija: 'Koncerti',
-    slika: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30'
-  },
-  {
-    id: 3,
-    naziv: 'Ljetni festival',
-    datum: '2026-08-10',
-    vrijeme: '18:00',
-    lokacija: 'Opatija',
-    kategorija: 'Festivali',
-    slika: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3'
-  }
-]
-
-const dogadanjaZaDatum = computed(() => {
-  return dogadanja.filter(
-    event => event.datum === odabraniDatum.value
+// Sva događanja se učitaju jednom (skup podataka je namjerno malen - bez paginacije)
+// pa se filtriranje po odabranom danu radi lokalno.
+const dogadanjaZaDatum = computed(() =>
+  eventStore.dogadanja.filter(
+    e => e.datum_pocetka?.slice(0, 10) === odabraniDatum.value
   )
-})
+)
 
-function formatDatum (datum) {
-  if (!datum) {
-    return ''
-  }
+const datumiSDogadajima = computed(() =>
+  eventStore.dogadanja.map(e => e.datum_pocetka?.slice(0, 10))
+)
 
+function formatVrijeme(datum) {
+  if (!datum) return ''
+  return new Date(datum).toLocaleTimeString('hr-HR', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+function formatDatum(datum) {
+  if (!datum) return ''
   const [godina, mjesec, dan] = datum.split('-')
-
-  return `${dan}. ${mjesec}. ${godina}.`
+  const d = new Date(godina, mjesec - 1, dan)
+  return d.toLocaleDateString('hr-HR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
 }
 
-function otvoriDetalje (id) {
-  router.push(`/event/${id}`)
+function otvoriDetalje(event) {
+  router.push(`/dogadanja/${event.id}`)
 }
+
+onMounted(async () => {
+  ucitavanje.value = true
+  try {
+    await eventStore.pretraziDogadanja()
+  } finally {
+    ucitavanje.value = false
+  }
+})
 </script>
 
 <style scoped lang="scss">
 .calendar-page {
   min-height: 100%;
-  background: #fafcfc;
-  color: #173f4f;
+  background: var(--kantun-pozadina);
+  color: var(--kantun-tekst);
 }
 
 .page-container {
@@ -198,20 +160,13 @@ function otvoriDetalje (id) {
   padding: 60px 24px;
 }
 
-.eyebrow {
-  color: #d09d1e;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
-
 .page-heading h1 {
   margin: 8px 0 12px;
   font-size: 48px;
 }
 
 .page-heading p {
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
   font-size: 17px;
 }
 
@@ -227,7 +182,8 @@ function otvoriDetalje (id) {
   justify-content: center;
   padding: 20px;
   border-radius: 18px;
-  background: white;
+  background: var(--kantun-bg-card);
+  height: fit-content;
 }
 
 .selected-date {
@@ -237,6 +193,12 @@ function otvoriDetalje (id) {
 .selected-date h2 {
   margin: 8px 0;
   font-size: 30px;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
 }
 
 .events-list {
@@ -250,7 +212,7 @@ function otvoriDetalje (id) {
   overflow: hidden;
   border-radius: 15px;
   cursor: pointer;
-  background: white;
+  background: var(--kantun-bg-card);
   transition: transform 0.2s ease;
 }
 
@@ -263,7 +225,6 @@ function otvoriDetalje (id) {
 }
 
 .category {
-  color: #d09d1e;
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -278,18 +239,18 @@ function otvoriDetalje (id) {
   align-items: center;
   gap: 6px;
   margin-top: 5px;
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
   font-size: 14px;
 }
 
 .empty-day {
   padding: 60px 20px;
   text-align: center;
-  color: #71858b;
+  color: var(--kantun-tekst-suptilan);
 }
 
 .empty-day h3 {
-  color: #173f4f;
+  color: var(--kantun-tekst);
 }
 
 @media (max-width: 800px) {
