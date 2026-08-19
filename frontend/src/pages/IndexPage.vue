@@ -44,6 +44,16 @@
             class="hero-button-secondary"
             to="/kalendar"
           />
+
+          <q-btn
+            flat
+            no-caps
+            size="lg"
+            label="Iznenadi me"
+            icon="casino"
+            class="hero-button-surprise"
+            @click="iznenadiMe"
+          />
         </div>
       </div>
     </section>
@@ -153,6 +163,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
 import { useEventStore } from '@/stores/events'
 import { useCategoryStore } from '@/stores/categories'
@@ -160,6 +171,7 @@ import { useFavoriteStore } from '@/stores/favorites'
 import { useAuthStore } from '@/stores/auth'
 import rijekaSlika from '@/assets/rijeka2.jpg'
 
+const router = useRouter()
 const eventStore = useEventStore()
 const categoryStore = useCategoryStore()
 const favoriteStore = useFavoriteStore()
@@ -174,6 +186,16 @@ function izmijesaj(niz) {
     ;[kopija[i], kopija[j]] = [kopija[j], kopija[i]]
   }
   return kopija
+}
+
+// Odabere nasumično događanje iz već učitanog popisa i odvede korisnika
+// izravno na njega - koristi isti popis kao i "Preporučeno" sekcija, bez
+// dodatnog poziva prema API-ju
+function iznenadiMe() {
+  const popis = eventStore.dogadanja
+  if (!popis.length) return
+  const nasumicno = popis[Math.floor(Math.random() * popis.length)]
+  router.push(`/dogadanja/${nasumicno.id}`)
 }
 
 onMounted(async () => {
@@ -269,6 +291,15 @@ onMounted(async () => {
 
 .hero-button-secondary:hover {
   background: rgba(251, 191, 36, 0.1);
+}
+
+.hero-button-surprise {
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0 20px;
+}
+
+.hero-button-surprise:hover {
+  color: var(--kantun-zlatna-svijetlo);
 }
 
 .section {

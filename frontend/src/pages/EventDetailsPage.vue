@@ -85,6 +85,14 @@
                 <strong>{{ cijenaTekst }}</strong>
               </div>
             </div>
+
+            <div v-if="dogadanje.grad" class="information-item">
+              <q-icon :name="vrijeme.ikona" />
+              <div>
+                <small>Vrijeme</small>
+                <strong>{{ vrijeme.tekst }}</strong>
+              </div>
+            </div>
           </div>
 
           <q-separator class="q-my-xl" />
@@ -154,6 +162,15 @@
               class="reserve-button"
               :to="{ path: '/prijava', query: { redirect: $route.fullPath } }"
             />
+
+            <q-btn
+              flat
+              no-caps
+              icon="share"
+              label="Podijeli"
+              class="share-button"
+              @click="podijeliEvent"
+            />
           </div>
         </q-card-section>
       </q-card>
@@ -212,6 +229,69 @@ const zadanaSlika =
 const rezervacijaDialog = ref(false)
 const brojMjesta = ref(1)
 const spremanje = ref(false)
+
+// Koordinate gradova na Kvarneru za dohvat vremenske prognoze (Open-Meteo
+// je besplatan i ne treba API ključ, ali treba mu lat/lon umjesto naziva grada)
+const KOORDINATE_GRADOVA = {
+  Rijeka: [45.3271, 14.4422],
+  Opatija: [45.3358, 14.3054],
+  Krk: [45.0247, 14.5769],
+  Crikvenica: [45.1769, 14.6939],
+  Cres: [44.9587, 14.4059],
+  Lošinj: [44.5297, 14.4664],
+  'Mali Lošinj': [44.5297, 14.4664],
+  Rab: [44.7566, 14.7597]
+}
+
+// WMO oznake vremena (koje vraća Open-Meteo) svedene na ikonu i kratak opis
+function opisiVrijeme (kod) {
+  if (kod === 0) return { ikona: 'sunny', tekst: 'Vedro' }
+  if ([1, 2].includes(kod)) return { ikona: 'partly_cloudy_day', tekst: 'Djelomično oblačno' }
+  if (kod === 3) return { ikona: 'cloud', tekst: 'Oblačno' }
+  if ([45, 48].includes(kod)) return { ikona: 'foggy', tekst: 'Magla' }
+  if ([51, 53, 55, 56, 57].includes(kod)) return { ikona: 'grain', tekst: 'Rosulja' }
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(kod)) return { ikona: 'rainy', tekst: 'Kiša' }
+  if ([71, 73, 75, 77, 85, 86].includes(kod)) return { ikona: 'weather_snowy', tekst: 'Snijeg' }
+  if ([95, 96, 99].includes(kod)) return { ikona: 'thunderstorm', tekst: 'Grmljavina' }
+  return { ikona: 'thermostat', tekst: 'Nepoznato' }
+}
+
+const vrijeme = ref({ ikona: 'schedule', tekst: 'Provjeri bliže datumu' })
+
+// Open-Meteo daje prognozu samo za idućih ~16 dana - za evente dalje u
+// budućnosti nema smisla prikazivati (ne postoji pouzdana prognoza), pa
+// tada ostaje poruka "Provjeri bliže datumu"
+async function ucitajVrijeme () {
+  const e = dogadanje.value
+  vrijeme.value = { ikona: 'schedule', tekst: 'Provjeri bliže datumu' }
+  if (!e?.grad || !e?.datum_pocetka) return
+
+  const koord = KOORDINATE_GRADOVA[e.grad]
+  if (!koord) return
+
+  const datumEventa = e.datum_pocetka.slice(0, 10)
+  const danas = new Date()
+  const zaKolikoDana = Math.floor(
+    (new Date(datumEventa) - new Date(danas.toDateString())) / 86400000
+  )
+  if (zaKolikoDana < 0 || zaKolikoDana > 15) return
+
+  try {
+    const [lat, lon] = koord
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FZagreb&forecast_days=16`
+    const odgovor = await fetch(url)
+    const podaci = await odgovor.json()
+    const indeks = podaci.daily?.time?.indexOf(datumEventa)
+    if (indeks === undefined || indeks === -1) return
+
+    const opis = opisiVrijeme(podaci.daily.weathercode[indeks])
+    const max = Math.round(podaci.daily.temperature_2m_max[indeks])
+    const min = Math.round(podaci.daily.temperature_2m_min[indeks])
+    vrijeme.value = { ikona: opis.ikona, tekst: `${opis.tekst}, ${min}°-${max}°C` }
+  } catch {
+    // API nedostupan - ostaje zadana poruka, ne rušimo stranicu zbog toga
+  }
+}
 
 const dogadanje = computed(() => eventStore.trenutniEvent)
 const jeOmiljeno = computed(
@@ -306,8 +386,31 @@ async function posaljiRezervaciju() {
   }
 }
 
-function ucitaj() {
-  eventStore.ucitajEvent(route.params.idOrSlug)
+async function podijeliEvent() {
+  const link = window.location.href
+  const podaci = {
+    title: dogadanje.value?.naziv,
+    text: `Pogledaj ovo događanje na Kantunu: ${dogadanje.value?.naziv}`,
+    url: link
+  }
+
+  // navigator.share otvara prirodni share meni (mobitel/desktop), a ako
+  // preglednik to ne podržava, jednostavno kopiramo link u međuspremnik
+  if (navigator.share) {
+    try {
+      await navigator.share(podaci)
+    } catch {
+      // korisnik je otkazao share dijalog - nema potrebe za greškom
+    }
+  } else {
+    await navigator.clipboard.writeText(link)
+    Notify.create({ type: 'positive', message: 'Poveznica kopirana u međuspremnik!' })
+  }
+}
+
+async function ucitaj() {
+  await eventStore.ucitajEvent(route.params.idOrSlug)
+  ucitajVrijeme()
 }
 
 watch(() => route.params.idOrSlug, ucitaj)
@@ -460,6 +563,10 @@ h1 {
 .reserve-button {
   background: var(--kantun-accent);
   color: #0a0f1e;
+}
+
+.share-button {
+  color: var(--kantun-tekst-suptilan);
 }
 
 @media (max-width: 600px) {
