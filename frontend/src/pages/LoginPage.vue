@@ -62,11 +62,6 @@
           />
         </q-form>
 
-        <div class="auth-hint">
-          Demo admin račun: <strong>admin@kantun.hr</strong> /
-          <strong>Kantun2026!</strong>
-        </div>
-
         <div class="auth-link">
           Nemaš račun?
           <router-link to="/registracija">Registriraj se</router-link>
@@ -167,16 +162,6 @@ h1 {
   background: var(--kantun-accent);
   color: #0a0f1e;
   font-weight: 700;
-}
-
-.auth-hint {
-  margin-top: 18px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--kantun-tekst-suptilan);
-  font-size: 13px;
-  text-align: center;
 }
 
 .auth-link {

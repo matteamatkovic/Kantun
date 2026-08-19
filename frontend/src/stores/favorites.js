@@ -28,6 +28,8 @@ export const useFavoriteStore = defineStore('favorites', {
       } else {
         await api.post(`/favoriti/${eventId}`)
         this.idevi.add(eventId)
+        // POST vraća samo poruku, ne i puni event (naziv, slika...), zato se
+        // cijeli popis ponovno dohvati umjesto da se event samo gurne u niz
         await this.ucitajFavorite()
       }
     },

@@ -329,6 +329,8 @@ app.post('/api/dogadanja', provjeriPrijavu, provjeriAdmina, async (req, res) => 
       [
         naziv, opis || null, kategorija_id || null, lokacija || null, grad || null, adresa || null,
         datum_pocetka, datum_zavrsetka || null,
+        // prazan string iz forme mora postati NULL, ne "0" - inače bi admin
+        // slučajno označio event kao besplatan umjesto "cijena nepoznata"
         cijena === undefined || cijena === '' ? null : cijena,
         slika_url || null, web_link || null
       ]
@@ -405,6 +407,9 @@ app.get('/api/favoriti', provjeriPrijavu, async (req, res) => {
 // POST /api/favoriti/:dogadanjeId - dodaj u favorite
 app.post('/api/favoriti/:dogadanjeId', provjeriPrijavu, async (req, res) => {
   try {
+    // INSERT IGNORE umjesto običnog INSERT-a - ako korisnik već ima ovo u
+    // favoritima, unique constraint u bazi bi inače bacio grešku, a ovako se
+    // to jednostavno preskoči bez rušenja zahtjeva
     await db.query(
       'INSERT IGNORE INTO favoriti (korisnik_id, dogadanje_id) VALUES (?, ?)',
       [req.korisnik.id, req.params.dogadanjeId]

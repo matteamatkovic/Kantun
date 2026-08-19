@@ -1,16 +1,9 @@
 -- ============================================================
 -- Kantun - baza podataka
 -- ============================================================
--- Ove naredbe NE stvaraju novu bazu (CREATE DATABASE) niti mijenjaju
--- aktivnu bazu (USE) - pokreni ih dok si u HeidiSQL-u već spojen/a na
--- svoju postojeću bazu (klikni na svoju bazu u lijevom stupcu prije
--- pokretanja skripte).
---
--- Kako pokrenuti u HeidiSQL-u:
---   1. Lijevi stupac: klikni na svoju bazu da postane aktivna (podebljana).
---   2. File -> Load SQL file... -> odaberi ovu datoteku (schema.sql).
---   3. Pritisni F9 (Execute SQL) da izvršiš cijelu skriptu.
---   4. Ponovi isto sa seed.sql da dobiješ početne (demo) podatke.
+-- Ne stvara novu bazu (nema CREATE DATABASE/USE) - pokreće se nad bazom
+-- na koju si već spojen/a u HeidiSQL-u (F9 = Execute SQL). Nakon ove
+-- skripte pokrenuti i seed.sql za početne podatke.
 -- ============================================================
 
 SET NAMES utf8mb4;

@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { api } from '@/boot/axios'
 
 export const useAuthStore = defineStore('auth', {
+  // user/token se čitaju izravno iz localStorage pri pokretanju aplikacije,
+  // tako da prijava ostane zapamćena i nakon refresha stranice
   state: () => ({
     user: JSON.parse(localStorage.getItem('kantun_user') || 'null'),
     token: localStorage.getItem('kantun_token') || null
