@@ -3,10 +3,7 @@
 
 SET NAMES utf8mb4;
 
--- Korisnici
--- Lozinke su spremljene kao bcrypt hash (nikad plain-text!).
---   Admin:    admin@kantun.hr    / Kantun2026!
---   Korisnik: iva.horvat@example.com / Korisnik123
+-- Korisnici (lozinke spremljene kao bcrypt hash, nikad plain-text)
 INSERT INTO korisnici (ime, prezime, email, lozinka_hash, uloga) VALUES
 ('Admin', 'Kantun', 'admin@kantun.hr', '$2a$10$amLAKTGER.DnSmgpnPw5w.nQ1DV4HTuYISiCq50EvXQigxWouTaFG', 'admin'),
 ('Iva', 'Horvat', 'iva.horvat@example.com', '$2a$10$zH5ZJhOWYaUqcQGiYegtKus8ge5kKwUcvJ1T.grRmt7NJLU9Z2RQO', 'korisnik');
