@@ -2,6 +2,8 @@ import MainLayout from '../layouts/MainLayout.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 
 const routes = [
+  // javni dio aplikacije - naslovna, popis/detalji događanja, kalendar,
+  // prijava/registracija, plus favoriti i moje rezervacije koji traže prijavu
   {
     path: '/',
     component: MainLayout,
@@ -51,6 +53,8 @@ const routes = [
     ]
   },
 
+  // admin dio - meta na roditelju vrijedi za sva djeca pa ne treba
+  // ponavljati zahtijevaPrijavu/zahtijevaAdmina na svakoj ruti posebno
   {
     path: '/admin',
     component: AdminLayout,

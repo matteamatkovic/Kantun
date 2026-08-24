@@ -70,6 +70,9 @@
             label="Ikona (Material Icons naziv)"
             hint="npr. music_note, festival, palette..."
           />
+          <!-- tekstualno polje i nativni color picker dijele isti v-model,
+               pa promjena u jednom odmah ažurira drugi - korisnik može ili
+               ručno upisati HEX ili kliknuti na kružić i odabrati boju -->
           <q-input
             v-model="forma.boja"
             outlined
@@ -99,6 +102,8 @@
 </template>
 
 <script setup>
+// Admin upravljanje kategorijama (/admin/kategorije) - isti obrazac kao
+// AdminEventsPage: jedan dialog za dodavanje i uređivanje
 import { ref, onMounted } from 'vue'
 import { Notify, Dialog } from 'quasar'
 import { useCategoryStore } from '@/stores/categories'

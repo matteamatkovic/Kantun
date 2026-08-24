@@ -17,6 +17,8 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    // zajednička funkcija za prijavu i registraciju - obje vraćaju isti oblik
+    // odgovora (korisnik + token), pa ovo sprema oboje na jedno mjesto
     postaviSesiju(podaci) {
       this.user = podaci.korisnik
       this.token = podaci.token
@@ -41,6 +43,9 @@ export const useAuthStore = defineStore('auth', {
       return data
     },
 
+    // poziva se pri pokretanju appa (vidi MainLayout) da provjeri je li token
+    // iz localStorage još valjan i osvježi podatke o korisniku s backenda -
+    // ako token više ne vrijedi (istekao/obrisan na serveru), samo odjavi
     async ucitajProfil() {
       if (!this.token) return
       try {

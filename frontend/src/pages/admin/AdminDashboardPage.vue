@@ -76,6 +76,8 @@
 </template>
 
 <script setup>
+// Admin naslovnica (/admin) - brojke za brzi pregled + gumb za pokretanje
+// automatskog uvoza s Entrio.hr (backend logika je u backend/entrio.js)
 import { ref, onMounted } from 'vue'
 import { Notify } from 'quasar'
 import { api } from '@/boot/axios'
@@ -102,6 +104,9 @@ onMounted(async () => {
   }
 })
 
+// poziva POST /api/uvoz - backend odradi cijeli scraping posao i vrati
+// samo poruku (koliko je dodano/preskočeno), pa se popis događanja
+// ponovno dohvati da se odmah vide nova ako ih ima
 async function pokreniUvoz() {
   uvozUTijeku.value = true
   try {

@@ -10,6 +10,8 @@ export const useEventStore = defineStore('events', {
   }),
 
   actions: {
+    // šalje samo one filtere koji su stvarno postavljeni - prazan
+    // objekt params znači "vrati sve", isto kao da filtera i nema
     async pretraziDogadanja(filteri = {}) {
       this.ucitavanje = true
       try {

@@ -26,6 +26,8 @@ export const useReservationStore = defineStore('reservations', {
     },
 
     // --- Admin ---
+    // ista ruta kao ucitajMoje(), ali sa sve=1 - backend to prepoznaje
+    // (uz proveru da je pozivatelj admin) i vrati rezervacije SVIH korisnika
     async ucitajSve() {
       const { data } = await api.get('/rezervacije', { params: { sve: 1 } })
       this.sveRezervacije = data

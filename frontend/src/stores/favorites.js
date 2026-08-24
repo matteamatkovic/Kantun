@@ -4,6 +4,9 @@ import { api } from '@/boot/axios'
 export const useFavoriteStore = defineStore('favorites', {
   state: () => ({
     favoriti: [],
+    // odvojeni Set samo s ID-evima da jeOmiljeno() bude brza provjera
+    // (has() je O(1)) umjesto pretraživanja cijelog niza favoriti pri
+    // svakom renderiranju kartice događanja
     idevi: new Set(),
     ucitano: false
   }),
@@ -34,6 +37,8 @@ export const useFavoriteStore = defineStore('favorites', {
       }
     },
 
+    // poziva se kod odjave da se favoriti prethodnog korisnika ne
+    // zadrže u memoriji do sljedeće prijave
     ocisti() {
       this.favoriti = []
       this.idevi = new Set()

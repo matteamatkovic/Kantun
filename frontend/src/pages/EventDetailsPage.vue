@@ -210,6 +210,9 @@
 </template>
 
 <script setup>
+// Detalji jednog događanja (/dogadanja/:idOrSlug) - najveća stranica u
+// aplikaciji: prikaz podataka, vremenska prognoza, favorit, rezervacija,
+// dijeljenje. Sve to živi ovdje jer je logično vezano uz "ovo jedno događanje"
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Notify } from 'quasar'
@@ -346,6 +349,8 @@ const cijenaTekst = computed(() => {
   return `${Number(e.cijena).toFixed(2)} €`
 })
 
+// otvara Google Maps pretragu (ne zna se točna adresa svakog eventa, zato
+// pretraga po tekstu umjesto npr. ugrađene karte s koordinatama)
 function otvoriMapu() {
   const e = dogadanje.value
   const dijelovi = [e?.lokacija, e?.adresa, e?.grad].filter(Boolean)
@@ -413,6 +418,10 @@ async function ucitaj() {
   ucitajVrijeme()
 }
 
+// ako korisnik ode s ove stranice na drugo događanje (npr. preko linka u
+// "slična događanja"), Vue Router ponovno iskoristi istu komponentu bez
+// remounta - zato watch na idOrSlug umjesto samo onMounted, inače bi
+// stranica prikazivala staro događanje dok se ne osvježi ručno
 watch(() => route.params.idOrSlug, ucitaj)
 
 onMounted(() => {

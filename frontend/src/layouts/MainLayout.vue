@@ -246,6 +246,8 @@
 </template>
 
 <script setup>
+// Layout za cijeli javni dio aplikacije (header, mobilni drawer, footer) -
+// koristi ga svaka ruta osim /admin (ta ima svoj AdminLayout)
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -265,11 +267,14 @@ function odjaviSe() {
   router.push('/')
 }
 
+// isto kao odjaviSe(), samo dodatno zatvori mobilni izbornik nakon klika
 function odjaviSeIzDrawera() {
   odjaviSe()
   leftDrawerOpen.value = false
 }
 
+// pri svakom učitavanju appa (ne samo prijavi) osvježi podatke o korisniku
+// s backenda - token u localStorage može biti star pa je bolje provjeriti
 onMounted(() => {
   if (authStore.jePrijavljen) authStore.ucitajProfil()
 })

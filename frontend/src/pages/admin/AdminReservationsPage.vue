@@ -41,6 +41,9 @@
 </template>
 
 <script setup>
+// Admin pregled SVIH rezervacija svih korisnika (/admin/rezervacije) -
+// koristi reservationStore.ucitajSve() (ruta s ?sve=1), za razliku od
+// MyReservationsPage koja prikazuje samo rezervacije prijavljenog korisnika
 import { ref, onMounted } from 'vue'
 import { Notify } from 'quasar'
 import { useReservationStore } from '@/stores/reservations'
@@ -96,6 +99,8 @@ function formatDatum(datum) {
   })
 }
 
+// select u tablici zove ovo izravno na promjenu (@update:model-value) -
+// nema posebnog gumba "Spremi", status se mijenja odmah čim admin odabere
 async function promijeniStatus(rezervacija, status) {
   try {
     await reservationStore.postaviStatus(rezervacija.id, status)

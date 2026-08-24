@@ -89,6 +89,8 @@
 </template>
 
 <script setup>
+// Kalendarski prikaz događanja (/kalendar) - q-date komponenta iz Quasara
+// prikazuje mjesec, a klik na dan filtrira događanja tog dana ispod kalendara
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useEventStore } from '@/stores/events'
@@ -110,6 +112,9 @@ const dogadanjaZaDatum = computed(() =>
   )
 )
 
+// lista datuma (YYYY-MM-DD) koja ide u q-date prop "events" - Quasar sam
+// nacrta točkicu ispod svakog dana u tom popisu, tako se vidi koji dani u
+// mjesecu imaju događanja i prije nego se klikne na njih
 const datumiSDogadajima = computed(() =>
   eventStore.dogadanja.map(e => e.datum_pocetka?.slice(0, 10))
 )

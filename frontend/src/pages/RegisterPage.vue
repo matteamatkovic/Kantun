@@ -75,6 +75,7 @@
 </template>
 
 <script setup>
+// Stranica za registraciju novog korisnika (/registracija)
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -91,6 +92,9 @@ const lozinka = ref('')
 const ucitavanje = ref(false)
 const greska = ref('')
 
+// authStore.registracija odmah i prijavljuje korisnika (backend vraća
+// token zajedno s potvrdom), pa nakon ovoga korisnik ne mora ručno na
+// stranicu za prijavu - direktno je ulogiran
 async function registrirajSe() {
   greska.value = ''
   ucitavanje.value = true

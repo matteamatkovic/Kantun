@@ -72,6 +72,7 @@
 </template>
 
 <script setup>
+// Stranica za prijavu (/prijava)
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -92,6 +93,9 @@ async function prijaviSe() {
   ucitavanje.value = true
   try {
     await authStore.prijava(email.value, lozinka.value)
+    // ako je router guard preusmjerio ovamo iz zaštićene stranice (npr.
+    // /favoriti), redirect query vraća korisnika točno tamo gdje je htio
+    // ići prije prijave, umjesto uvijek na početnu
     router.push(route.query.redirect || '/')
   } catch (err) {
     greska.value =

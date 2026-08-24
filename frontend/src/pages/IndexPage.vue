@@ -161,6 +161,8 @@
 </template>
 
 <script setup>
+// Početna stranica (/) - hero sekcija, kategorije, 6 nasumično odabranih
+// nadolazećih događanja ("Preporučeno") i gumb Iznenadi me
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
@@ -178,6 +180,8 @@ const authStore = useAuthStore()
 
 const preporuceniEventi = ref([])
 
+// standardni Fisher-Yates shuffle - koristi se da "Preporučeno" sekcija
+// ne prikazuje ista događanja u istom redoslijedu pri svakom posjetu
 function izmijesaj(niz) {
   const kopija = [...niz]
   for (let i = kopija.length - 1; i > 0; i--) {
@@ -199,6 +203,8 @@ function iznenadiMe() {
 
 onMounted(async () => {
   categoryStore.ucitajKategorije()
+  // nadolazeca=1 filtrira na backendu samo buduća događanja (datum_pocetka
+  // >= danas) - nema smisla preporučivati nešto što je već prošlo
   const dogadanja = await eventStore.pretraziDogadanja({ nadolazeca: 1 })
   preporuceniEventi.value = izmijesaj(dogadanja || []).slice(0, 6)
   if (authStore.jePrijavljen) favoriteStore.ucitajFavorite()

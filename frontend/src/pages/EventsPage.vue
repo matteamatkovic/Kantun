@@ -44,6 +44,7 @@
 </template>
 
 <script setup>
+// Glavni popis događanja s filterima (/dogadanja)
 import { ref, onMounted } from 'vue'
 import EventCard from '@/components/EventCard.vue'
 import EventFilters from '@/components/EventFilters.vue'
@@ -55,6 +56,9 @@ const eventStore = useEventStore()
 const favoriteStore = useFavoriteStore()
 const authStore = useAuthStore()
 
+// EventFilters emitira 'promjena' svaki put kad korisnik nešto promijeni
+// (debounced, vidi EventFilters.vue) - ovdje samo spremimo te filtere i
+// ponovno pozovemo pretragu s njima
 const trenutniFilteri = ref({})
 
 function primijeniFiltere(noviFilteri) {
@@ -68,6 +72,9 @@ function ucitaj() {
 
 onMounted(() => {
   ucitaj()
+  // favoriti trebaju biti učitani da EventCard zna prikazati puno/prazno
+  // srce za svaku karticu - ako korisnik nije prijavljen, nema smisla
+  // ni pokušavati (backend bi vratio 401)
   if (authStore.jePrijavljen) favoriteStore.ucitajFavorite()
 })
 </script>

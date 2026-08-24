@@ -72,6 +72,9 @@
 </template>
 
 <script setup>
+// Popis rezervacija prijavljenog korisnika (/moje-rezervacije, zahtijeva
+// prijavu). Za razliku od admin pregleda rezervacija, backend ovdje vraća
+// samo rezervacije trenutnog korisnika (bez ?sve=1)
 import { ref, onMounted } from 'vue'
 import { Notify } from 'quasar'
 import { useReservationStore } from '@/stores/reservations'
@@ -88,6 +91,9 @@ function formatDatum(datum) {
   })
 }
 
+// male pomoćne mape status-koda iz baze (na_cekanju/potvrdena/otkazana)
+// u čitljiv tekst i Quasar boju za bedž - drži se sinkrono s ENUM-om u
+// schema.sql (kolona status na tablici rezervacije)
 function statusTekst(status) {
   return (
     { na_cekanju: 'Na čekanju', potvrdena: 'Potvrđeno', otkazana: 'Otkazano' }[

@@ -42,6 +42,9 @@
 </template>
 
 <script setup>
+// Traka s filterima za popis događanja (koristi je EventsPage) - sama ne
+// zna ništa o dohvaćanju događanja, samo emitira 'promjena' s trenutnim
+// filterima, a roditelj odlučuje što će s tim (poziva pretraziDogadanja)
 import { reactive, watch, onMounted, computed } from 'vue'
 import { useCategoryStore } from '@/stores/categories'
 import { useEventStore } from '@/stores/events'

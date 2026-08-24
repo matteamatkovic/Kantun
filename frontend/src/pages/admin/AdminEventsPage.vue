@@ -141,6 +141,8 @@
 </template>
 
 <script setup>
+// Admin upravljanje događanjima (/admin/dogadanja) - tablica + jedan dialog
+// koji se koristi i za dodavanje i za uređivanje (uredivanje ref odlučuje koji je)
 import { ref, computed, onMounted } from 'vue'
 import { Notify, Dialog } from 'quasar'
 import { useEventStore } from '@/stores/events'
@@ -206,6 +208,8 @@ async function ucitajSve() {
   }
 }
 
+// event=null -> prazna forma za novo događanje; event=objekt -> forma
+// se popuni postojećim podacima i uredivanje se postavi na true
 function otvoriDialog(event) {
   if (event) {
     uredivanje.value = true
@@ -235,6 +239,8 @@ function otvoriDialog(event) {
   dialogOpen.value = true
 }
 
+// id se ne šalje u tijelu zahtjeva - kod uređivanja već je u URL-u
+// (PUT /dogadanja/:id), a kod kreiranja ga baza sama generira
 async function spremi() {
   spremanje.value = true
   try {
@@ -259,6 +265,8 @@ async function spremi() {
   }
 }
 
+// Quasar Dialog.create umjesto obične JS potvrde (window.confirm) - ljepše
+// se uklapa u izgled aplikacije i radi na mobitelu bez čudnog ponašanja
 function obrisi(event) {
   Dialog.create({
     title: 'Brisanje događanja',

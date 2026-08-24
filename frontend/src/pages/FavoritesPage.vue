@@ -36,6 +36,8 @@
 </template>
 
 <script setup>
+// Stranica s favoritima prijavljenog korisnika (/favoriti, zahtijeva
+// prijavu - vidi meta.zahtijevaPrijavu u routes.js)
 import { ref, onMounted } from 'vue'
 import EventCard from '@/components/EventCard.vue'
 import { useFavoriteStore } from '@/stores/favorites'

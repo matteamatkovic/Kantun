@@ -8,6 +8,9 @@ export const useCategoryStore = defineStore('categories', {
   }),
 
   actions: {
+    // kategorije se rijetko mijenjaju pa se jednom dohvate i onda ponovno
+    // koriste iz store-a - forsirano=true (npr. nakon uređivanja u adminu)
+    // ipak ide ponovno na backend
     async ucitajKategorije(forsirano = false) {
       if (this.ucitano && !forsirano) return this.kategorije
       const { data } = await api.get('/kategorije')
@@ -22,6 +25,8 @@ export const useCategoryStore = defineStore('categories', {
       return data
     },
 
+    // backend kod PUT-a ne vraća ažurirani zapis, zato ga sami sastavimo
+    // ovdje (id + podaci koje smo poslali) da se lokalni popis odmah ažurira
     async azurirajKategoriju(id, podaci) {
       await api.put(`/kategorije/${id}`, podaci)
       const idx = this.kategorije.findIndex(k => k.id === id)

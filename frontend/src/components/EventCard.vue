@@ -55,6 +55,9 @@
 </template>
 
 <script setup>
+// Kartica jednog događanja - koristi se na početnoj, na /dogadanja, u
+// kalendaru i na favoritima, uvijek s istim izgledom (slika, cijena,
+// kategorija, datum, lokacija + gumb za favorite ako je korisnik prijavljen)
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -112,6 +115,8 @@ function otvoriDetalje() {
   router.push(`/dogadanja/${props.event.id}`)
 }
 
+// gumb ima @click.stop (vidi template) da klik na srce ne otvori i
+// detalje događanja - to su dvije odvojene akcije na istoj kartici
 async function promijeniOmiljeno() {
   try {
     await favoriteStore.prekidaciOmiljeno(props.event.id)

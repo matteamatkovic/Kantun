@@ -48,6 +48,8 @@
 </template>
 
 <script setup>
+// Layout samo za /admin rute (router.js ovo štiti - zahtijeva prijavu I
+// admin ulogu prije nego što uopće dođe do ovog layouta)
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
