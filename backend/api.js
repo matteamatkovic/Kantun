@@ -1,6 +1,5 @@
 // Kantun - backend API (Node.js + Express + MySQL)
-// Sve rute su u ovoj jednoj datoteci (bez posebnih mapa routes/middleware/
-// itd.) - isti pristup kao i kod drugih projekata na faksu.
+// Sve rute su u ovoj jednoj datoteci (bez posebnih mapa routes/middleware/...)
 
 require('dotenv').config()
 const express = require('express')

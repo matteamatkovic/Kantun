@@ -17,9 +17,8 @@ INSERT INTO kategorije (naziv, boja, ikona) VALUES
 ('Sport', '#60a5fa', 'sports_soccer'),
 ('Festivali', '#34d399', 'celebration');
 
--- Događanja - stvarni, trenutno najavljeni eventi u Rijeci, Opatiji i na
--- Krku, ne izmišljeni demo podaci. Cijena je kod većine NULL (nepoznato)
--- jer listing na izvornim stranicama ne prikazuje cijenu izravno.
+-- Događanja - stvarni eventi u Rijeci, Opatiji i na Krku (cijena je kod
+-- većine NULL jer se na izvornim stranicama ne vidi izravno)
 INSERT INTO dogadanja (naziv, opis, kategorija_id, lokacija, grad, adresa, datum_pocetka, datum_zavrsetka, cijena, slika_url, web_link) VALUES
 ('Vesna Pisarović - koncert', 'Vesna Pisarović, jedna od najprepoznatljivijih hrvatskih pjevačica, nastupa na otvorenom u Nugentovom parku Trsatskog kaštela. Očekuje se večer punog glasa i publike koja pjeva svaki stih zajedno s njom.', 1, 'Trsatski kaštel - Nugentov park', 'Rijeka', NULL, '2026-08-28 21:45:00', NULL, NULL, 'https://images.unsplash.com/photo-1603190287605-e6ade32fa852?w=800', 'https://www.entrio.hr/en/events/rijeka'),
 ('Stand-up: Nezgodna Situacija', 'Opuštena stand-up večer u Bačva Pubu donosi komičare koji se hvataju u koštac sa svakodnevnim "nezgodnim situacijama" iz života. Idealno za druženje uz smijeh i piće nakon radnog tjedna.', 2, 'Bačva Pub', 'Rijeka', NULL, '2026-08-29 20:30:00', NULL, NULL, 'https://images.unsplash.com/photo-1527261834078-9b37d35a4a32?w=800', 'https://www.entrio.hr/en/events/rijeka'),
